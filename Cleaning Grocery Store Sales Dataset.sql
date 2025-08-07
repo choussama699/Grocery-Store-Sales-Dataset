@@ -1,3 +1,6 @@
+-- dataset link : https://www.kaggle.com/datasets/pratyushpuri/grocery-store-sales-dataset-in-2025-1900-record
+
+
 
 -- delete duplicate
 -- standarize data and fix errors
@@ -6,19 +9,23 @@
 
 SELECT *FROM grocery_chain_data;
 
+-- create a new table 
 CREATE TABLE grocery
 LIKE grocery_chain_data;
 
 INSERT INTO grocery 
 SELECT * FROM grocery_chain_data;
 
+-- create a new column : row_num to show duplicate , if number is greater than 1 so the columns are duplicated 
 WITH cte_duplicate AS(SELECT *, ROW_NUMBER() OVER (PARTITION BY customer_id) AS row_num
 FROM grocery
 )
 
+-- show all duplicated columns 
 SELECT * FROM cte_duplicate
 WHERE row_num > 1;
 
+-- we can't delete from cte , so we need to create another table with new table putting in it values of cte  
 SELECT * FROM grocery 
 WHERE customer_id = 2494 ;
 
@@ -42,14 +49,19 @@ SELECT * FROM groceryTWO;
 INSERT INTO groceryTWO
 SELECT *, ROW_NUMBER() OVER (PARTITION BY customer_id) AS row_num FROM grocery;
 
+-- delete duplicated 
 DELETE FROM groceryTWO 
 WHERE row_num > 1;
 
+
+-- confirm that there's no duplicated values 
 SELECT * FROM groceryTWO WHERE row_num > 1;
 
 -- STandarizing data : it means finding isssus and fixing them !!
 
 SELECT * FROM groceryTWO;
+
+-- trim all String columns
 
 SELECT store_name, TRIM(store_name) FROM groceryTWO;
 
@@ -58,13 +70,15 @@ UPDATE groceryTWO
 -- SET product_name = TRIM(product_name);
 SET aisle = TRIM(aisle);
 
+-- verify that no same column
+
 SELECT DISTINCT store_name from groceryTWO;
 
 SELECT * FROM groceryTWO;
 SELECT DISTINCT aisle from groceryTWO ORDER BY aisle ASC;
 SELECT DISTINCT product_name from groceryTWO ORDER BY 1;
 
-
+-- update transatction date type : from str to date
 SELECT transaction_date from groceryTwo;
 
 UPDATE groceryTWO
